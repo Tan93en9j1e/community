@@ -1,6 +1,8 @@
 package com.tang.community;
 
+import com.tang.community.dao.DiscussPostMapper;
 import com.tang.community.dao.UserMapper;
+import com.tang.community.entity.DiscussPost;
 import com.tang.community.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * ProjectName: community
@@ -24,6 +27,8 @@ import java.util.Date;
 public class MapperTests {
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private DiscussPostMapper discussPostMapper;
 
     @Test
     public void testSelect() {
@@ -64,4 +69,14 @@ public class MapperTests {
         System.out.println(rows);
     }
 
+    @Test
+    public void testSelectPosts() {
+        List<DiscussPost> list = discussPostMapper.selectDiscussPosts(149, 0, 10);
+        for(DiscussPost post : list){
+            System.out.println(post);
+        }
+
+        int rows = discussPostMapper.selectDiscussPostRows(149);
+        System.out.println(rows);
+    }
 }
