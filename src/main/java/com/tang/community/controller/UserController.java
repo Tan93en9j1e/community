@@ -1,10 +1,14 @@
 package com.tang.community.controller;
 
+import com.tang.community.dao.LoginTicketMapper;
 import com.tang.community.entity.User;
 import com.tang.community.service.UserService;
 import com.tang.community.util.CommunityUtil;
+import com.tang.community.util.CookieUtil;
 import com.tang.community.util.HostHolder;
 import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * ProjectName: community
@@ -52,6 +57,9 @@ public class UserController {
 
     @Autowired
     private HostHolder hostHolder;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
 
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
     public String getSettingPage() {
@@ -113,4 +121,49 @@ public class UserController {
         }
     }
 
+    @RequestMapping(path = "/updatePassword", method = RequestMethod.POST)
+    public String updatePassword(String oldPassword, String newPassword, String confirmPassword,
+                                 Model model, HttpServletRequest request, HttpServletResponse response) {
+        User user = hostHolder.getUser();
+        if (user == null) {
+            model.addAttribute("error", "您还没有登录");
+            return "site/login";
+        }
+        Map<String, Object> map = userService.updatePassword(user.getId(), oldPassword, newPassword, confirmPassword);
+        if(map.containsKey("success")){
+            // 使当前用户的所有登录凭证失效
+            String ticket = CookieUtil.getValue(
+                    ((jakarta.servlet.http.HttpServletRequest)
+                            org.springframework.web.context.request.RequestContextHolder
+                                    .currentRequestAttributes()
+                                    .resolveReference(org.springframework.web.context.request.RequestAttributes.REFERENCE_REQUEST)),
+                    "ticket"
+            );
+
+            if (ticket != null) {
+                userService.logout(ticket);
+            }
+
+            // 删除cookie
+            Cookie cookie = new Cookie("ticket", null);
+            cookie.setPath(contextPath);
+            cookie.setMaxAge(0);
+            response.addCookie(cookie);
+
+            return "redirect:/login";
+        }
+        if (map.containsKey("oldPasswordMsg")) {
+            model.addAttribute("oldPasswordMsg", map.get("oldPasswordMsg"));
+        }
+        if (map.containsKey("newPasswordMsg")) {
+            model.addAttribute("newPasswordMsg", map.get("newPasswordMsg"));
+        }
+        if (map.containsKey("confirmPasswordMsg")) {
+            model.addAttribute("confirmPasswordMsg", map.get("confirmPasswordMsg"));
+        }
+        if (map.containsKey("error")) {
+            model.addAttribute("error", map.get("error"));
+        }
+        return "site/setting";
+    }
 }
