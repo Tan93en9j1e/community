@@ -1,9 +1,11 @@
 package com.tang.community.service;
 
 import com.tang.community.dao.LoginTicketMapper;
+import com.tang.community.dao.VerificationCodeMapper;
 import com.tang.community.entity.LoginTicket;
 import com.tang.community.entity.User;
 import com.tang.community.dao.UserMapper;
+import com.tang.community.entity.VerificationCode;
 import com.tang.community.util.CommunityConstant;
 import com.tang.community.util.CommunityUtil;
 import com.tang.community.util.MailClient;
@@ -48,6 +50,9 @@ public class UserService implements CommunityConstant {
 
     @Autowired
     private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private VerificationCodeMapper verificationCodeMapper;
 
     public User findUserById(int id) {
         return userMapper.selectById(id);
@@ -146,7 +151,7 @@ public class UserService implements CommunityConstant {
         loginTicket.setUserId(user.getId());
         loginTicket.setTicket(CommunityUtil.generateUUID());
         loginTicket.setStatus(0);
-        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000L));
         loginTicketMapper.insertLoginTicket(loginTicket);
 
         map.put("ticket", loginTicket.getTicket());
@@ -209,6 +214,113 @@ public class UserService implements CommunityConstant {
             map.put("success", "密码修改成功");
         } else {
             map.put("error", "密码修改失败");
+        }
+
+        return map;
+    }
+
+    public Map<String, Object> sendVerificationCode(String email) {
+        Map<String, Object> map = new HashMap<>();
+
+        if (StringUtils.isBlank(email)) {
+            map.put("emailMsg", "邮箱不能为空");
+            return map;
+        }
+
+        User user = userMapper.selectByEmail(email);
+        if (user == null) {
+            map.put("emailMsg", "该邮箱尚未注册");
+            return map;
+        }
+
+        VerificationCode oldVc = verificationCodeMapper.selectByEmail(email);
+        if (oldVc != null && oldVc.getStatus() == VERIFICATION_CODE_UNUSED) {
+            verificationCodeMapper.updateStatus(oldVc.getId(), VERIFICATION_CODE_EXPIRED);
+        }
+
+        String code = CommunityUtil.generateUUID().substring(0, 6).toUpperCase();
+
+        VerificationCode vc = new VerificationCode();
+        vc.setEmail(email);
+        vc.setCode(code);
+        vc.setExpireTime(new Date(System.currentTimeMillis() + VERIFICATION_CODE_EXPIRED_SECONDS * 1000));
+        vc.setStatus(VERIFICATION_CODE_UNUSED);
+        verificationCodeMapper.insertVerificationCode(vc);
+
+        Context context = new Context();
+        context.setVariable("email", email);
+        context.setVariable("code", code);
+        String content = templateEngine.process("/mail/forget", context);
+        mailClient.sendMail(email, "找回密码", content);
+
+        map.put("success", "验证码已发送至您的邮箱");
+        return map;
+    }
+
+
+    public Map<String, Object> resetPassword(String email, String code, String newPassword) {
+        Map<String, Object> map = new HashMap<>();
+
+        if (StringUtils.isBlank(email)) {
+            map.put("emailMsg", "邮箱不能为空");
+            return map;
+        }
+        if (StringUtils.isBlank(code)) {
+            map.put("codeMsg", "验证码不能为空");
+            return map;
+        }
+        if (StringUtils.isBlank(newPassword)) {
+            map.put("passwordMsg", "新密码不能为空");
+            return map;
+        }
+
+        User user = userMapper.selectByEmail(email);
+        if (user == null) {
+            map.put("emailMsg", "该邮箱尚未注册");
+            return map;
+        }
+
+        com.tang.community.entity.VerificationCode vc = verificationCodeMapper.selectByEmail(email);
+        if (vc == null) {
+            map.put("codeMsg", "验证码不存在或已过期");
+            return map;
+        }
+
+        if (vc.getStatus() == VERIFICATION_CODE_USED) {
+            map.put("codeMsg", "验证码已被使用");
+            return map;
+        }
+
+        if (vc.getStatus() == VERIFICATION_CODE_EXPIRED || new Date().after(vc.getExpireTime())) {
+            map.put("codeMsg", "验证码已过期");
+            return map;
+        }
+
+        if (vc.getAttemptCount() >= 5) {
+            verificationCodeMapper.updateStatus(vc.getId(), VERIFICATION_CODE_EXPIRED);
+            map.put("codeMsg", "验证码尝试次数过多，请重新获取");
+            return map;
+        }
+
+        if (!vc.getCode().equals(code)) {
+            verificationCodeMapper.incrementAttemptCount(vc.getId());
+            vc = verificationCodeMapper.selectByEmail(email);
+            int remainingAttempts = 5 - vc.getAttemptCount();
+            if (remainingAttempts > 0) {
+                map.put("codeMsg", "验证码不正确，还剩" + remainingAttempts + "次机会");
+            } else {
+                map.put("codeMsg", "验证码尝试次数过多，请重新获取");
+            }
+            return map;
+        }
+
+        String md5NewPassword = CommunityUtil.md5(newPassword + user.getSalt());
+        int rows = userMapper.updatePassword(user.getId(), md5NewPassword);
+        if (rows > 0) {
+            verificationCodeMapper.updateStatus(vc.getId(), VERIFICATION_CODE_USED);
+            map.put("success", "密码重置成功");
+        } else {
+            map.put("error", "密码重置失败");
         }
 
         return map;

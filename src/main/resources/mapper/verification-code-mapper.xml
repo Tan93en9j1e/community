@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tang.community.dao.VerificationCodeMapper">
+    <sql id="selectFields">
+        id, email, code, expire_time, status, attempt_count
+    </sql>
+
+    <sql id="insertFields">
+        email, code, expire_time, status, attempt_count
+    </sql>
+
+    <insert id="insertVerificationCode" parameterType="VerificationCode" keyProperty="id">
+        insert into verification_code(<include refid="insertFields"/>)
+        values(#{email},#{code},#{expireTime},#{status},#{attemptCount})
+    </insert>
+
+    <select id="selectByCode" resultType="VerificationCode">
+        select
+        <include refid="selectFields"/>
+        from verification_code
+        where code=#{code}
+    </select>
+
+    <select id="selectByEmail" resultType="VerificationCode">
+        select
+        <include refid="selectFields"/>
+        from verification_code
+        where email=#{email}
+        and status = 0
+        and expire_time > NOW()
+        order by id desc
+        limit 1
+    </select>
+
+    <update id="updateStatus">
+        update verification_code
+        set status=#{status}
+        where id = #{id}
+    </update>
+
+    <update id="incrementAttemptCount">
+        update verification_code
+        set attempt_count = attempt_count + 1
+        where id = #{id}
+    </update>
+
+    <delete id="deleteExpiredCodes">
+        delete
+        from verification_code
+        where expire_time &lt; NOW()
+           or status = 1
+    </delete>
+</mapper>

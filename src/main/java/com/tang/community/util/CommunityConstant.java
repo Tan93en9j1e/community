@@ -20,4 +20,9 @@ public interface CommunityConstant {
     int DEFAULT_EXPIRED_SECONDS = 3600 * 12;
     //记住状态的登录凭证超时时间
     int REMEMBER_EXPIRED_SECONDS = 3600 * 24 * 100;
+
+    int VERIFICATION_CODE_UNUSED = 0;
+    int VERIFICATION_CODE_USED = 1;
+    int VERIFICATION_CODE_EXPIRED = 2;
+    int VERIFICATION_CODE_EXPIRED_SECONDS = 300;
 }
