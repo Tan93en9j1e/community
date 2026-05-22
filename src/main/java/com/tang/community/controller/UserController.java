@@ -1,5 +1,6 @@
 package com.tang.community.controller;
 
+import com.tang.community.annotation.LoginRequired;
 import com.tang.community.dao.LoginTicketMapper;
 import com.tang.community.entity.User;
 import com.tang.community.service.UserService;
@@ -61,11 +62,13 @@ public class UserController {
     @Autowired
     private LoginTicketMapper loginTicketMapper;
 
+    @LoginRequired
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
     public String getSettingPage() {
         return "site/setting";
     }
 
+    @LoginRequired
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model) {
         if (headerImage == null) {
@@ -121,6 +124,7 @@ public class UserController {
         }
     }
 
+    @LoginRequired
     @RequestMapping(path = "/updatePassword", method = RequestMethod.POST)
     public String updatePassword(String oldPassword, String newPassword, String confirmPassword,
                                  Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -130,7 +134,7 @@ public class UserController {
             return "site/login";
         }
         Map<String, Object> map = userService.updatePassword(user.getId(), oldPassword, newPassword, confirmPassword);
-        if(map.containsKey("success")){
+        if (map.containsKey("success")) {
             // 使当前用户的所有登录凭证失效
             String ticket = CookieUtil.getValue(
                     ((jakarta.servlet.http.HttpServletRequest)
