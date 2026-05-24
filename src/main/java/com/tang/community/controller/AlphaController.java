@@ -1,6 +1,7 @@
 package com.tang.community.controller;
 
 import com.tang.community.service.AlphaService;
+import com.tang.community.util.CommunityUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -150,7 +151,7 @@ public class AlphaController {
     //cookie示例
     @RequestMapping(path = "/cookie/set", method = RequestMethod.GET)
     @ResponseBody
-    public String setCookie(HttpServletResponse response){
+    public String setCookie(HttpServletResponse response) {
         // 创建cookie
         Cookie cookie = new Cookie("code", UUID.randomUUID().toString());
         // 设置cookie生效的范围
@@ -164,7 +165,7 @@ public class AlphaController {
 
     @RequestMapping(path = "/cookie/get", method = RequestMethod.GET)
     @ResponseBody
-    public String getCookie(@CookieValue("code") String code){
+    public String getCookie(@CookieValue("code") String code) {
         System.out.println(code);
         return "get cookie";
     }
@@ -172,7 +173,7 @@ public class AlphaController {
     //session示例
     @RequestMapping(path = "/session/set", method = RequestMethod.GET)
     @ResponseBody
-    public String setSession(HttpSession session){
+    public String setSession(HttpSession session) {
         session.setAttribute("id", 1);
         session.setAttribute("name", "Test");
         return "set session";
@@ -180,9 +181,18 @@ public class AlphaController {
 
     @RequestMapping(path = "/session/get", method = RequestMethod.GET)
     @ResponseBody
-    public String getSession(HttpSession session){
+    public String getSession(HttpSession session) {
         System.out.println(session.getAttribute("id"));
         System.out.println(session.getAttribute("name"));
         return "get session";
+    }
+
+    //ajax示例
+    @RequestMapping(path = "/ajax", method = RequestMethod.POST)
+    @ResponseBody
+    public String testAjax(String name, int age) {
+        System.out.println(name);
+        System.out.println(age);
+        return CommunityUtil.getJsonString(0, "操作成功");
     }
 }
