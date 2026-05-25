@@ -30,7 +30,8 @@
                             <a class="nav-link" th:href="@{/index}">首页</a>
                         </li>
                         <li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser!=null}">
-                            <a class="nav-link position-relative" href="site/letter.html">消息<span class="badge badge-danger">12</span></a>
+                            <a class="nav-link position-relative" href="site/letter.html">消息<span
+                                    class="badge badge-danger">12</span></a>
                         </li>
                         <li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser==null}">
                             <a class="nav-link" th:href="@{/register}">注册</a>
@@ -41,7 +42,8 @@
                         <li class="nav-item ml-3 btn-group-vertical dropdown" th:if="${loginUser!=null}">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img th:src="@{${loginUser.headerUrl}}" class="rounded-circle" style="width:30px;" alt="用户头像"/>
+                                <img th:src="@{${loginUser.headerUrl}}" class="rounded-circle" style="width:30px;"
+                                     alt="用户头像"/>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item text-center" href="site/profile.html">个人主页</a>
@@ -144,14 +146,14 @@
                             <ul class="d-inline float-right">
                                 <li class="d-inline ml-2">赞 11</li>
                                 <li class="d-inline ml-2">|</li>
-                                <li class="d-inline ml-2">回帖 7</li>
+                                <li class="d-inline ml-2">回帖 <span th:text="${map.post.commentCount}">7</span></li>
                             </ul>
                         </div>
                     </div>
                 </li>
             </ul>
             <!-- 分页 -->
-            <nav class="mt-5" th:if="${page.rows>0}">
+            <nav class="mt-5" th:if="${page.rows>0}" th:fragment="pagination">
                 <ul class="pagination justify-content-center">
                     <li class="page-item">
                         <a class="page-link" th:href="@{${page.path}(current=1)}">首页</a>
@@ -159,8 +161,9 @@
                     <li th:class="|page-item ${page.current==1?'disabled':''}|">
                         <a class="page-link" th:href="@{${page.path}(current=${page.current}-1)}">上一页</a>
                     </li>
-                    <li th:class="|page-item ${i==page.current?'active':''}|" th:each="i:${#numbers.sequence(page.from,page.to)}">
-                        <a class="page-link" href="#" th:text="${i}">1</a>
+                    <li th:class="|page-item ${i==page.current?'active':''}|"
+                        th:each="i:${#numbers.sequence(page.from,page.to)}">
+                        <a class="page-link" th:href="@{${page.path}(current=${i})}" th:text="${i}">1</a>
                     </li>
                     <li th:class="|page-item ${page.current==page.total?'disabled':''}|">
                         <a class="page-link" th:href="@{${page.path}(current=${page.current}+1)}">下一页</a>
@@ -226,7 +229,7 @@
                                 <li class="nav-item text-white-50">
                                     京ICP备14055008号-4 &nbsp;&nbsp;&nbsp;&nbsp;
                                     <img src="https://static.nowcoder.com/company/images/res/ghs.png"
-                                         style="width:18px;"  alt="公安备案图标"/>
+                                         style="width:18px;" alt="公安备案图标"/>
                                     京公网安备 11010502036488号
                                 </li>
                             </ul>

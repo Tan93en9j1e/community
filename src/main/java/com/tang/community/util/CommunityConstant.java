@@ -25,4 +25,9 @@ public interface CommunityConstant {
     int VERIFICATION_CODE_USED = 1;
     int VERIFICATION_CODE_EXPIRED = 2;
     int VERIFICATION_CODE_EXPIRED_SECONDS = 300;
+
+    //实体类型 帖子
+    int ENTITY_TYPE_POST = 1;
+    //实体类型 评论
+    int ENTITY_TYPE_COMMENT = 2;
 }
