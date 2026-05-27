@@ -4,6 +4,7 @@ import com.tang.community.entity.DiscussPost;
 import com.tang.community.entity.Page;
 import com.tang.community.entity.User;
 import com.tang.community.service.DiscussPostService;
+import com.tang.community.service.LikeService;
 import com.tang.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.tang.community.util.CommunityConstant.ENTITY_TYPE_POST;
 
 /**
  * ProjectName: community
@@ -34,6 +37,9 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private LikeService likeService;
+
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page) {
         //方法调用之前，SpringMVC会自动实例化Model和Page，并将Page注入Model。
@@ -49,6 +55,10 @@ public class HomeController {
                 map.put("post", post);
                 User user = userService.findUserById(post.getUserId());
                 map.put("user", user);
+
+                long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId());
+                map.put("likeCount", likeCount);
+
                 discussPosts.add(map);
             }
         }
