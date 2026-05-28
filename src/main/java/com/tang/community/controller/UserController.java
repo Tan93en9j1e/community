@@ -1,13 +1,12 @@
 package com.tang.community.controller;
 
 import com.tang.community.annotation.LoginRequired;
-import com.tang.community.dao.LoginTicketMapper;
 import com.tang.community.entity.User;
+import com.tang.community.service.LikeService;
 import com.tang.community.service.UserService;
 import com.tang.community.util.CommunityUtil;
 import com.tang.community.util.CookieUtil;
 import com.tang.community.util.HostHolder;
-import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -60,7 +59,7 @@ public class UserController {
     private HostHolder hostHolder;
 
     @Autowired
-    private LoginTicketMapper loginTicketMapper;
+    private LikeService likeService;
 
     @LoginRequired
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
@@ -169,5 +168,21 @@ public class UserController {
             model.addAttribute("error", map.get("error"));
         }
         return "site/setting";
+    }
+    //个人主页
+    @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
+    public String getProfilePage(@PathVariable("userId") int userId, Model model) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在！");
+        }
+
+        // 用户
+        model.addAttribute("user", user);
+        // 点赞数量
+        int likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount", likeCount);
+
+        return "site/profile";
     }
 }

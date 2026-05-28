@@ -1,6 +1,6 @@
 package com.tang.community.controller;
 
-import com.tang.community.CommunityApplication;
+import com.tang.community.annotation.LoginRequired;
 import com.tang.community.entity.User;
 import com.tang.community.service.LikeService;
 import com.tang.community.util.CommunityUtil;
@@ -34,11 +34,12 @@ public class LikeController {
 
     @RequestMapping(path = "/like", method = RequestMethod.POST)
     @ResponseBody
-    public String like(int entityId, int entityType) {
+    @LoginRequired
+    public String like(int entityId, int entityType,int entityUserId) {
         User user = hostHolder.getUser();
 
         // 点赞
-        likeService.like(user.getId(), entityType, entityId);
+        likeService.like(user.getId(), entityType, entityId,entityUserId);
         // 统计数量
         long likeCount = likeService.findEntityLikeCount(entityType, entityId);
         // 查询当前用户是否点赞
