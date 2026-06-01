@@ -2,8 +2,10 @@ package com.tang.community.controller;
 
 import com.tang.community.annotation.LoginRequired;
 import com.tang.community.entity.User;
+import com.tang.community.service.FollowService;
 import com.tang.community.service.LikeService;
 import com.tang.community.service.UserService;
+import com.tang.community.util.CommunityConstant;
 import com.tang.community.util.CommunityUtil;
 import com.tang.community.util.CookieUtil;
 import com.tang.community.util.HostHolder;
@@ -39,7 +41,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/user")
-public class UserController {
+public class UserController implements CommunityConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -60,6 +62,9 @@ public class UserController {
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private FollowService followService;
 
     @LoginRequired
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
@@ -169,6 +174,7 @@ public class UserController {
         }
         return "site/setting";
     }
+
     //个人主页
     @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
     public String getProfilePage(@PathVariable("userId") int userId, Model model) {
@@ -182,6 +188,19 @@ public class UserController {
         // 点赞数量
         int likeCount = likeService.findUserLikeCount(userId);
         model.addAttribute("likeCount", likeCount);
+
+        // 关注数量
+        long followeeCount = followService.findFolloweeCount(userId, ENTITY_TYPE_USER);
+        model.addAttribute("followeeCount", followeeCount);
+        // 粉丝数量
+        long followerCount = followService.findFollowerCount(ENTITY_TYPE_USER, userId);
+        model.addAttribute("followerCount", followerCount);
+        //是否关注
+        boolean hasFollowed = false;
+        if (hostHolder.getUser() != null) {
+            hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
+        }
+        model.addAttribute("hasFollowed", hasFollowed);
 
         return "site/profile";
     }
