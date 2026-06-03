@@ -1,13 +1,11 @@
 package com.tang.community.controller;
 
 import com.tang.community.annotation.LoginRequired;
+import com.tang.community.entity.Comment;
 import com.tang.community.entity.DiscussPost;
 import com.tang.community.entity.Page;
 import com.tang.community.entity.User;
-import com.tang.community.service.DiscussPostService;
-import com.tang.community.service.FollowService;
-import com.tang.community.service.LikeService;
-import com.tang.community.service.UserService;
+import com.tang.community.service.*;
 import com.tang.community.util.CommunityConstant;
 import com.tang.community.util.CommunityUtil;
 import com.tang.community.util.CookieUtil;
@@ -74,6 +72,9 @@ public class UserController implements CommunityConstant {
 
     @Autowired
     private DiscussPostService discussPostService;
+
+    @Autowired
+    private CommentService commentService;
 
     @LoginRequired
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
@@ -213,6 +214,7 @@ public class UserController implements CommunityConstant {
 
         return "site/profile";
     }
+
     //我的帖子
     @RequestMapping(path = "/mypost/{userId}", method = RequestMethod.GET)
     public String getMyPostPage(@PathVariable("userId") int userId, Page page, Model model) {
@@ -252,5 +254,60 @@ public class UserController implements CommunityConstant {
         model.addAttribute("discussPosts", discussPosts);
 
         return "site/my-post";
+    }
+
+    //我的回复
+    @RequestMapping(path = "/myreply/{userId}", method = RequestMethod.GET)
+    public String getMyReplyPage(@PathVariable("userId") int userId, Page page, Model model) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在！");
+        }
+
+        // 用户信息
+        model.addAttribute("user", user);
+
+        // 分页配置
+        page.setRows(commentService.findCommentCountByUser(userId));
+        page.setPath("/user/myreply/" + userId);
+
+        // 查询评论列表
+        List<Comment> commentList = commentService.findCommentsByUser(userId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> replies = new ArrayList<>();
+
+        if (commentList != null) {
+            for (Comment comment : commentList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("comment", comment);
+
+                DiscussPost post = null;
+
+                // 如果是对帖子的评论，直接获取帖子
+                if (comment.getEntityType() == ENTITY_TYPE_POST) {
+                    post = discussPostService.findDiscussPostById(comment.getEntityId());
+                }
+                // 如果是对评论的回复，需要找到父评论对应的帖子
+                else if (comment.getEntityType() == ENTITY_TYPE_COMMENT) {
+                    // entityId 是父评论的ID
+                    Comment parentComment = commentService.findCommentById(comment.getEntityId());
+                    if (parentComment != null) {
+                        // 父评论的 entityId 才是帖子的ID
+                        if (parentComment.getEntityType() == ENTITY_TYPE_POST) {
+                            post = discussPostService.findDiscussPostById(parentComment.getEntityId());
+                        }
+                    }
+                }
+
+                // 只有找到对应的帖子才添加到列表
+                if (post != null) {
+                    map.put("post", post);
+                    replies.add(map);
+                }
+            }
+        }
+
+        model.addAttribute("replies", replies);
+
+        return "site/my-reply";
     }
 }
