@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Description:
  */
 @Mapper
+@Deprecated
 public interface LoginTicketMapper {
     @Insert({"insert into login_ticket(user_id, ticket, status, expired) values (#{userId}, #{ticket}, #{status}, #{expired})"})
     @Options(useGeneratedKeys = true, keyProperty = "id")
