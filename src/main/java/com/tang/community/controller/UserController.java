@@ -1,7 +1,10 @@
 package com.tang.community.controller;
 
 import com.tang.community.annotation.LoginRequired;
+import com.tang.community.entity.DiscussPost;
+import com.tang.community.entity.Page;
 import com.tang.community.entity.User;
+import com.tang.community.service.DiscussPostService;
 import com.tang.community.service.FollowService;
 import com.tang.community.service.LikeService;
 import com.tang.community.service.UserService;
@@ -28,6 +31,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,6 +71,9 @@ public class UserController implements CommunityConstant {
 
     @Autowired
     private FollowService followService;
+
+    @Autowired
+    private DiscussPostService discussPostService;
 
     @LoginRequired
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
@@ -203,5 +212,45 @@ public class UserController implements CommunityConstant {
         model.addAttribute("hasFollowed", hasFollowed);
 
         return "site/profile";
+    }
+    //我的帖子
+    @RequestMapping(path = "/mypost/{userId}", method = RequestMethod.GET)
+    public String getMyPostPage(@PathVariable("userId") int userId, Page page, Model model) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在！");
+        }
+
+        // 用户信息
+        model.addAttribute("user", user);
+
+        // 分页配置
+        page.setRows(discussPostService.findDiscussPostRows(userId));
+        page.setPath("/user/mypost/" + userId);
+
+        // 查询帖子列表
+        List<DiscussPost> postList = discussPostService.findDiscussPosts(userId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> discussPosts = new ArrayList<>();
+
+        if (postList != null) {
+            for (DiscussPost post : postList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("post", post);
+
+                // 获取发帖用户
+                User postUser = userService.findUserById(post.getUserId());
+                map.put("user", postUser);
+
+                // 获取点赞数量
+                long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId());
+                map.put("likeCount", likeCount);
+
+                discussPosts.add(map);
+            }
+        }
+
+        model.addAttribute("discussPosts", discussPosts);
+
+        return "site/my-post";
     }
 }
