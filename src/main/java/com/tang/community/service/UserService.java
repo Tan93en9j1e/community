@@ -170,7 +170,6 @@ public class UserService implements CommunityConstant {
         String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
         redisTemplate.opsForValue().set(redisKey, loginTicket);
 
-
         map.put("ticket", loginTicket.getTicket());
         return map;
     }
@@ -179,6 +178,7 @@ public class UserService implements CommunityConstant {
 //        loginTicketMapper.updateStatus(ticket, 1);
         String redisKey = RedisKeyUtil.getTicketKey(ticket);
         LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(redisKey);
+        loginTicket.setStatus(1);
         redisTemplate.opsForValue().set(redisKey, loginTicket);
     }
 
