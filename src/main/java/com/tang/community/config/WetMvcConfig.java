@@ -1,5 +1,6 @@
 package com.tang.community.config;
 
+import com.tang.community.controller.MessageInterceptor;
 import com.tang.community.controller.interceptor.AlphaInterceptor;
 import com.tang.community.controller.interceptor.LoginRequiredInterceptor;
 import com.tang.community.controller.interceptor.LoginTicketInterceptor;
@@ -29,6 +30,9 @@ public class WetMvcConfig implements WebMvcConfigurer {
     @Autowired
     private LoginRequiredInterceptor loginRequiredInterceptor;
 
+    @Autowired
+    private MessageInterceptor messageInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(alphaInterceptor)
@@ -39,6 +43,9 @@ public class WetMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
 
         registry.addInterceptor(loginRequiredInterceptor)
+                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
+
+        registry.addInterceptor(messageInterceptor)
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
     }
 }
