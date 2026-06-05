@@ -1,7 +1,9 @@
 package com.tang.community.controller;
 
+import com.tang.community.entity.Event;
 import com.tang.community.entity.Page;
 import com.tang.community.entity.User;
+import com.tang.community.event.EventProducer;
 import com.tang.community.service.FollowService;
 import com.tang.community.service.UserService;
 import com.tang.community.util.CommunityConstant;
@@ -38,12 +40,24 @@ public class FollowController implements CommunityConstant {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @RequestMapping(path = "/follow", method = RequestMethod.POST)
     @ResponseBody
     public String follow(int entityType, int entityId) {
         User user = hostHolder.getUser();
 
         followService.follow(user.getId(), entityType, entityId);
+
+        //触发关注事件
+        Event event = new Event()
+                .setTopic(TOPIC_FOLLOW)
+                .setUserId(user.getId())
+                .setEntityType(entityType)
+                .setEntityId(entityId)
+                .setEntityUserId(entityId);
+        eventProducer.fireEvent(event);
 
         return CommunityUtil.getJsonString(0, "已关注");
     }
