@@ -1,9 +1,9 @@
 package com.tang.community.config;
 
-import com.tang.community.controller.MessageInterceptor;
 import com.tang.community.controller.interceptor.AlphaInterceptor;
 import com.tang.community.controller.interceptor.LoginRequiredInterceptor;
 import com.tang.community.controller.interceptor.LoginTicketInterceptor;
+import com.tang.community.controller.interceptor.MessageInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

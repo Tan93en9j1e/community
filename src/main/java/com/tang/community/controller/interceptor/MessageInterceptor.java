@@ -1,4 +1,4 @@
-package com.tang.community.controller;
+package com.tang.community.controller.interceptor;
 
 import com.tang.community.entity.User;
 import com.tang.community.service.MessageService;
