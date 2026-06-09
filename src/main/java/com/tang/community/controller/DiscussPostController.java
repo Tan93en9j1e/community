@@ -1,9 +1,7 @@
 package com.tang.community.controller;
 
-import com.tang.community.entity.Comment;
-import com.tang.community.entity.DiscussPost;
-import com.tang.community.entity.Page;
-import com.tang.community.entity.User;
+import com.tang.community.entity.*;
+import com.tang.community.event.EventProducer;
 import com.tang.community.service.CommentService;
 import com.tang.community.service.DiscussPostService;
 import com.tang.community.service.LikeService;
@@ -49,6 +47,9 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     @ResponseBody
     public String addDiscussPost(String title, String content) {
@@ -63,6 +64,14 @@ public class DiscussPostController implements CommunityConstant {
         discussPost.setContent(content);
         discussPost.setCreateTime(new Date());
         discussPostService.addDiscussPost(discussPost);
+
+        // 触发发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(user.getId())
+                .setEntityId(discussPost.getId())
+                .setEntityType(ENTITY_TYPE_POST);
+        eventProducer.fireEvent(event);
 
         return CommunityUtil.getJsonString(0, "发布成功");
     }
