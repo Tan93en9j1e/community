@@ -16,16 +16,16 @@ import org.springframework.stereotype.Component;
  * version: 1.0
  * Description:
  */
-@Component
-public class VerificationCodeTask {
-    private static final Logger logger = LoggerFactory.getLogger(VerificationCodeTask.class);
-
-    @Autowired
-    private VerificationCodeMapper verificationCodeMapper;
-
-    @Scheduled(fixedRate = 1000 * 60 * 10)
-    public void cleanExpiredCodes() {
-        int count = verificationCodeMapper.deleteExpiredCodes();
-        logger.info("定期清理过期验证码，清理了" + count + "条数据");
-    }
-}
+//@Component
+//public class VerificationCodeTask {
+//    private static final Logger logger = LoggerFactory.getLogger(VerificationCodeTask.class);
+//
+//    @Autowired
+//    private VerificationCodeMapper verificationCodeMapper;
+//
+//    @Scheduled(fixedRate = 1000 * 60 * 10)
+//    public void cleanExpiredCodes() {
+//        int count = verificationCodeMapper.deleteExpiredCodes();
+//        logger.info("定期清理过期验证码，清理了" + count + "条数据");
+//    }
+//}
