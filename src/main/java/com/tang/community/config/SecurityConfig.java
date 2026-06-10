@@ -56,7 +56,13 @@ import java.io.PrintWriter;
 //                        AUTHORITY_USER,
 //                        AUTHORITY_ADMIN,
 //                        AUTHORITY_MODERATOR
-//                ).anyRequest().permitAll();
+//                ).antMatchers(
+//                         "/discuss/top",
+//                          "/discuss/wonderful"
+//                ).hasAnyAuthority(AUTHORITY_MODERATOR)
+//                .antMatchers("/discuss/delete")
+//                .hasAnyAuthority(AUTHORITY_ADMIN)
+//                .anyRequest().permitAll();
 //
 //        //权限不够时的处理
 //        http.exceptionHandling()
@@ -101,6 +107,7 @@ public class SecurityConfig implements CommunityConstant {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/register", "/captcha").permitAll()
                 .requestMatchers("/user/setting",
                         "/user/upload",
                         "/discuss/add",
@@ -112,7 +119,10 @@ public class SecurityConfig implements CommunityConstant {
                         "/unfollow"
                 )
                 .hasAnyAuthority(AUTHORITY_USER, AUTHORITY_ADMIN, AUTHORITY_MODERATOR)
-                .requestMatchers("/login", "/register", "/captcha").permitAll()
+                .requestMatchers("/discuss/top", "/discuss/wonderful")
+                .hasAnyAuthority(AUTHORITY_MODERATOR)
+                .requestMatchers("/discuss/delete")
+                .hasAnyAuthority(AUTHORITY_ADMIN)
                 .anyRequest().permitAll()
         );
 
