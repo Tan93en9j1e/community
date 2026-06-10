@@ -1,9 +1,6 @@
 package com.tang.community.config;
 
-import com.tang.community.controller.interceptor.AlphaInterceptor;
-import com.tang.community.controller.interceptor.LoginRequiredInterceptor;
-import com.tang.community.controller.interceptor.LoginTicketInterceptor;
-import com.tang.community.controller.interceptor.MessageInterceptor;
+import com.tang.community.controller.interceptor.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -33,6 +30,9 @@ public class WetMvcConfig implements WebMvcConfigurer {
     @Autowired
     private MessageInterceptor messageInterceptor;
 
+    @Autowired
+    private DataInterceptor dataInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(alphaInterceptor)
@@ -46,6 +46,9 @@ public class WetMvcConfig implements WebMvcConfigurer {
 //                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
 
         registry.addInterceptor(messageInterceptor)
+                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
+
+        registry.addInterceptor(dataInterceptor)
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
     }
 }
