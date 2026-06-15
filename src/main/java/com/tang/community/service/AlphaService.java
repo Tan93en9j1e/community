@@ -96,7 +96,7 @@ public class AlphaService {
         return "ok";
     }
 
-    public Object save2(){
+    public Object save2() {
         transactionTemplate.setIsolationLevel(TransactionDefinition.PROPAGATION_REQUIRED);
         transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
 
@@ -119,19 +119,19 @@ public class AlphaService {
             post.setCreateTime(new Date());
             discussPostMapper.insertDiscussPost(post);
 
-            int a=1/0;
+            int a = 1 / 0;
             return "ok";
         });
     }
 
     //异步方法
     @Async
-    public void execute1(){
+    public void execute1() {
         logger.debug("execute1");
     }
 
-    @Scheduled(initialDelay = 10000, fixedRate = 1000)
-    public void execute2(){
+    //    @Scheduled(initialDelay = 10000, fixedRate = 1000)
+    public void execute2() {
         logger.debug("execute2");
     }
 
