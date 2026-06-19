@@ -1,3 +1,100 @@
+/* ========================================
+   登录 / 注册 / 设置页 - 卡片样式
+   ======================================== */
+
 .main .container {
-	width: 720px;
+  max-width: 500px;
+  width: 100%;
+  margin: 40px auto;
+  padding: 40px 48px !important;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.main .container h3 {
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  color: #262626;
+  padding-bottom: 16px;
+  margin-bottom: 32px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* 表单标签 */
+.col-form-label {
+  font-weight: 500;
+  color: #595959;
+  font-size: 14px;
+}
+
+/* 输入框 */
+.form-control {
+  border-radius: 6px;
+  border: 1px solid #d9d9d9;
+  padding: 10px 14px;
+  font-size: 14px;
+  transition: all 0.25s ease;
+}
+.form-control:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.12);
+}
+
+/* 登录按钮 */
+.btn-info {
+  background: #1890ff;
+  border-color: #1890ff;
+  border-radius: 6px;
+  padding: 10px 0;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  transition: all 0.25s ease;
+}
+.btn-info:hover {
+  background: #096dd9;
+  border-color: #096dd9;
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+/* 验证码区域 */
+#kaptcha {
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid #d9d9d9;
+}
+#kaptcha:hover {
+  border-color: #1890ff;
+}
+
+/* 忘记密码链接 */
+.float-right.text-danger {
+  font-size: 13px;
+}
+.float-right.text-danger:hover {
+  color: #ff4d4f !important;
+  text-decoration: underline;
+}
+
+/* checkbox 美化 */
+.form-check-label {
+  font-size: 14px;
+  color: #595959;
+  margin-left: 4px;
+}
+
+/* 错误信息 */
+.invalid-feedback {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+@media (max-width: 576px) {
+  .main .container {
+    margin: 16px;
+    padding: 24px 20px !important;
+  }
 }
